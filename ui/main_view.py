@@ -1,5 +1,8 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+import os
+
+from PIL import Image, ImageTk
 
 
 class MainView:
@@ -9,18 +12,45 @@ class MainView:
         self.servicio = servicio
         self.cerrar_sesion = cerrar_sesion
 
+        self.ruta_assets = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)),
+            "assets"
+        )
+
         self.crear_interfaz()
 
     def crear_interfaz(self):
         self.frame = tk.Frame(self.root)
         self.frame.pack(fill="both", expand=True)
 
+        # -------------------------
+        # LOGO
+        # -------------------------
+        ruta_logo = os.path.join(self.ruta_assets, "logo.png")
+
+        if os.path.exists(ruta_logo):
+            try:
+                imagen = Image.open(ruta_logo)
+                imagen = imagen.resize((80, 80))
+                self.logo = ImageTk.PhotoImage(imagen)
+
+                tk.Label(
+                    self.frame,
+                    image=self.logo
+                ).pack(pady=(10, 0))
+
+            except Exception:
+                pass
+
+        # -------------------------
+        # TITULO
+        # -------------------------
         titulo = tk.Label(
             self.frame,
             text="Restaurante App",
             font=("Arial", 22, "bold")
         )
-        titulo.pack(pady=15)
+        titulo.pack(pady=5)
 
         subtitulo = tk.Label(
             self.frame,
@@ -28,6 +58,9 @@ class MainView:
         )
         subtitulo.pack()
 
+        # -------------------------
+        # NAVEGACION
+        # -------------------------
         navegacion = tk.Frame(self.frame)
         navegacion.pack(pady=15)
 
@@ -49,15 +82,32 @@ class MainView:
             navegacion,
             text="Ventas",
             width=18,
-            command=self.ventas_pendientes
+            command=self.mostrar_ventas
         ).grid(row=0, column=2, padx=5)
 
+        # -------------------------
+        # INFORMACION
+        # -------------------------
         self.info_label = tk.Label(
             self.frame,
             text=""
         )
         self.info_label.pack(pady=10)
 
+        # -------------------------
+        # CONTENEDOR PRINCIPAL
+        # -------------------------
+        self.contenido = tk.Frame(self.frame)
+        self.contenido.pack(
+            fill="both",
+            expand=True,
+            padx=20,
+            pady=5
+        )
+
+        # -------------------------
+        # CERRAR SESION
+        # -------------------------
         tk.Button(
             self.frame,
             text="Cerrar sesión",
@@ -66,6 +116,10 @@ class MainView:
         ).pack(pady=10)
 
         self.actualizar_informacion()
+
+    # =========================================================
+    # INFORMACION
+    # =========================================================
 
     def actualizar_informacion(self):
         self.info_label.config(
@@ -77,66 +131,29 @@ class MainView:
             )
         )
 
+    def limpiar_contenido(self):
+        for widget in self.contenido.winfo_children():
+            widget.destroy()
+
+    # =========================================================
+    # PRODUCTOS
+    # =========================================================
+
     def mostrar_productos(self):
-        ventana = tk.Toplevel(self.root)
-        ventana.title("Gestión de productos")
-        ventana.geometry("750x600")
+        self.limpiar_contenido()
 
         titulo = tk.Label(
-            ventana,
-            text="Gestión de productos",
-            font=("Arial", 18, "bold")
+            self.contenido,
+            text="Productos",
+            font=("Arial", 16, "bold")
         )
-        titulo.pack(pady=10)
-
-        formulario = tk.LabelFrame(
-            ventana,
-            text="Datos del producto",
-            padx=10,
-            pady=10
-        )
-        formulario.pack(fill="x", padx=20, pady=10)
-
-        tk.Label(formulario, text="Código:").grid(
-            row=0, column=0, padx=5, pady=5
-        )
-
-        codigo_entry = tk.Entry(formulario, width=25)
-        codigo_entry.grid(row=0, column=1, padx=5, pady=5)
-
-        tk.Label(formulario, text="Nombre:").grid(
-            row=1, column=0, padx=5, pady=5
-        )
-
-        nombre_entry = tk.Entry(formulario, width=25)
-        nombre_entry.grid(row=1, column=1, padx=5, pady=5)
-
-        tk.Label(formulario, text="Precio:").grid(
-            row=2, column=0, padx=5, pady=5
-        )
-
-        precio_entry = tk.Entry(formulario, width=25)
-        precio_entry.grid(row=2, column=1, padx=5, pady=5)
-
-        tk.Label(formulario, text="Stock:").grid(
-            row=3, column=0, padx=5, pady=5
-        )
-
-        stock_entry = tk.Entry(formulario, width=25)
-        stock_entry.grid(row=3, column=1, padx=5, pady=5)
-
-        botones = tk.Frame(ventana)
-        botones.pack(pady=10)
-
-        tabla_frame = tk.Frame(ventana)
-        tabla_frame.pack(fill="both", expand=True, padx=20, pady=10)
-
-        columnas = ("codigo", "nombre", "precio", "stock")
+        titulo.pack(pady=5)
 
         tabla = ttk.Treeview(
-            tabla_frame,
-            columns=columnas,
-            show="headings"
+            self.contenido,
+            columns=("codigo", "nombre", "precio", "stock"),
+            show="headings",
+            height=8
         )
 
         tabla.heading("codigo", text="Código")
@@ -145,251 +162,251 @@ class MainView:
         tabla.heading("stock", text="Stock")
 
         tabla.column("codigo", width=100)
-        tabla.column("nombre", width=220)
+        tabla.column("nombre", width=180)
         tabla.column("precio", width=100)
         tabla.column("stock", width=100)
 
-        tabla.pack(fill="both", expand=True)
+        tabla.pack(fill="x", pady=5)
 
-        def limpiar_campos():
-            codigo_entry.delete(0, tk.END)
-            nombre_entry.delete(0, tk.END)
-            precio_entry.delete(0, tk.END)
-            stock_entry.delete(0, tk.END)
-
-        def cargar_tabla():
-            for item in tabla.get_children():
-                tabla.delete(item)
-
-            productos = self.servicio.listar_productos()
-
-            for producto in productos:
-                tabla.insert(
-                    "",
-                    tk.END,
-                    values=(
-                        producto.codigo,
-                        producto.nombre,
-                        f"{producto.precio:.2f}",
-                        producto.stock
-                    )
-                )
-
-            self.actualizar_informacion()
-
-        def registrar():
-            codigo = codigo_entry.get().strip()
-            nombre = nombre_entry.get().strip()
-            precio = precio_entry.get().strip()
-            stock = stock_entry.get().strip()
-
-            if not codigo or not nombre or not precio or not stock:
-                messagebox.showwarning(
-                    "Datos incompletos",
-                    "Complete todos los campos."
-                )
-                return
-
-            try:
-                precio = float(precio)
-                stock = int(stock)
-            except ValueError:
-                messagebox.showerror(
-                    "Datos incorrectos",
-                    "El precio debe ser numérico y el stock debe ser entero."
-                )
-                return
-
-            self.servicio.registrar_producto(
-                codigo,
-                nombre,
-                precio,
-                stock
-            )
-
-            cargar_tabla()
-            limpiar_campos()
-
-            messagebox.showinfo(
-                "Producto registrado",
-                "El producto se registró correctamente."
-            )
-
-        def consultar():
-            codigo = codigo_entry.get().strip()
-
-            if not codigo:
-                messagebox.showwarning(
-                    "Código",
-                    "Ingrese el código del producto."
-                )
-                return
-
-            for producto in self.servicio.listar_productos():
-                if producto.codigo == codigo:
-                    nombre_entry.delete(0, tk.END)
-                    nombre_entry.insert(0, producto.nombre)
-
-                    precio_entry.delete(0, tk.END)
-                    precio_entry.insert(0, producto.precio)
-
-                    stock_entry.delete(0, tk.END)
-                    stock_entry.insert(0, producto.stock)
-
-                    return
-
-            messagebox.showerror(
-                "Producto no encontrado",
-                "No existe un producto con ese código."
-            )
-
-        def actualizar():
-            codigo = codigo_entry.get().strip()
-            nombre = nombre_entry.get().strip()
-            precio = precio_entry.get().strip()
-            stock = stock_entry.get().strip()
-
-            if not codigo or not nombre or not precio or not stock:
-                messagebox.showwarning(
-                    "Datos incompletos",
-                    "Complete todos los campos."
-                )
-                return
-
-            try:
-                precio = float(precio)
-                stock = int(stock)
-            except ValueError:
-                messagebox.showerror(
-                    "Datos incorrectos",
-                    "El precio debe ser numérico y el stock debe ser entero."
-                )
-                return
-
-            actualizado = self.servicio.actualizar_producto(
-                codigo,
-                nombre,
-                precio,
-                stock
-            )
-
-            if actualizado:
-                cargar_tabla()
-                limpiar_campos()
-
-                messagebox.showinfo(
-                    "Producto actualizado",
-                    "El producto se actualizó correctamente."
-                )
-            else:
-                messagebox.showerror(
-                    "Producto no encontrado",
-                    "No existe un producto con ese código."
-                )
-
-        def eliminar():
-            codigo = codigo_entry.get().strip()
-
-            if not codigo:
-                messagebox.showwarning(
-                    "Código",
-                    "Ingrese el código del producto."
-                )
-                return
-
-            eliminado = self.servicio.eliminar_producto(codigo)
-
-            if eliminado:
-                cargar_tabla()
-                limpiar_campos()
-
-                messagebox.showinfo(
-                    "Producto eliminado",
-                    "El producto se eliminó correctamente."
-                )
-            else:
-                messagebox.showerror(
-                    "Producto no encontrado",
-                    "No existe un producto con ese código."
-                )
-
-        tk.Button(
-            botones,
-            text="Registrar",
-            width=14,
-            command=registrar
-        ).grid(row=0, column=0, padx=5)
-
-        tk.Button(
-            botones,
-            text="Consultar",
-            width=14,
-            command=consultar
-        ).grid(row=0, column=1, padx=5)
-
-        tk.Button(
-            botones,
-            text="Actualizar",
-            width=14,
-            command=actualizar
-        ).grid(row=0, column=2, padx=5)
-
-        tk.Button(
-            botones,
-            text="Eliminar",
-            width=14,
-            command=eliminar
-        ).grid(row=0, column=3, padx=5)
-
-        tk.Button(
-            botones,
-            text="Limpiar",
-            width=14,
-            command=limpiar_campos
-        ).grid(row=0, column=4, padx=5)
-
-        cargar_tabla()
-
-    def mostrar_usuarios(self):
-        usuarios = self.servicio.listar_usuarios()
-
-        ventana = tk.Toplevel(self.root)
-        ventana.title("Usuarios")
-        ventana.geometry("500x350")
-
-        tk.Label(
-            ventana,
-            text="Usuarios registrados",
-            font=("Arial", 16, "bold")
-        ).pack(pady=15)
-
-        tabla = ttk.Treeview(
-            ventana,
-            columns=("identificacion", "nombre"),
-            show="headings"
-        )
-
-        tabla.heading("identificacion", text="Identificación")
-        tabla.heading("nombre", text="Nombre")
-
-        tabla.column("identificacion", width=150)
-        tabla.column("nombre", width=250)
-
-        tabla.pack(fill="both", expand=True, padx=20, pady=10)
-
-        for usuario in usuarios:
+        for producto in self.servicio.listar_productos():
             tabla.insert(
                 "",
-                tk.END,
+                "end",
+                values=(
+                    producto.codigo,
+                    producto.nombre,
+                    producto.precio,
+                    producto.stock
+                )
+            )
+
+    # =========================================================
+    # USUARIOS
+    # =========================================================
+
+    def mostrar_usuarios(self):
+        self.limpiar_contenido()
+
+        titulo = tk.Label(
+            self.contenido,
+            text="Usuarios registrados",
+            font=("Arial", 16, "bold")
+        )
+        titulo.pack(pady=5)
+
+        tabla = ttk.Treeview(
+            self.contenido,
+            columns=("identificacion", "nombre"),
+            show="headings",
+            height=8
+        )
+
+        tabla.heading(
+            "identificacion",
+            text="Identificación"
+        )
+
+        tabla.heading(
+            "nombre",
+            text="Nombre"
+        )
+
+        tabla.column(
+            "identificacion",
+            width=150
+        )
+
+        tabla.column(
+            "nombre",
+            width=250
+        )
+
+        tabla.pack(fill="x", pady=5)
+
+        for usuario in self.servicio.listar_usuarios():
+            tabla.insert(
+                "",
+                "end",
                 values=(
                     usuario.identificacion,
                     usuario.nombre
                 )
             )
 
-    def ventas_pendientes(self):
-        messagebox.showinfo(
-            "Ventas",
-            "La funcionalidad de ventas está pendiente de desarrollo."
+    # =========================================================
+    # VENTAS
+    # =========================================================
+
+    def mostrar_ventas(self):
+        self.limpiar_contenido()
+
+        titulo = tk.Label(
+            self.contenido,
+            text="Registro de ventas",
+            font=("Arial", 16, "bold")
         )
-        
+        titulo.pack(pady=5)
+
+        # -------------------------
+        # SELECCION DE USUARIO
+        # -------------------------
+        tk.Label(
+            self.contenido,
+            text="Usuario:"
+        ).pack(pady=(5, 2))
+
+        usuarios = self.servicio.listar_usuarios()
+
+        usuarios_opciones = [
+            f"{usuario.identificacion} - {usuario.nombre}"
+            for usuario in usuarios
+        ]
+
+        usuario_combo = ttk.Combobox(
+            self.contenido,
+            values=usuarios_opciones,
+            state="readonly",
+            width=40
+        )
+
+        usuario_combo.pack(pady=3)
+
+        # -------------------------
+        # SELECCION DE PRODUCTO
+        # -------------------------
+        tk.Label(
+            self.contenido,
+            text="Producto:"
+        ).pack(pady=(5, 2))
+
+        productos = self.servicio.listar_productos()
+
+        productos_opciones = [
+            f"{producto.codigo} - {producto.nombre}"
+            for producto in productos
+            if producto.stock > 0
+        ]
+
+        producto_combo = ttk.Combobox(
+            self.contenido,
+            values=productos_opciones,
+            state="readonly",
+            width=40
+        )
+
+        producto_combo.pack(pady=3)
+
+        # -------------------------
+        # CALLBACK DE VENTA
+        # -------------------------
+        def registrar_venta():
+            usuario_seleccionado = usuario_combo.get()
+            producto_seleccionado = producto_combo.get()
+
+            if not usuario_seleccionado:
+                messagebox.showwarning(
+                    "Venta",
+                    "Seleccione un usuario."
+                )
+                return
+
+            if not producto_seleccionado:
+                messagebox.showwarning(
+                    "Venta",
+                    "Seleccione un producto."
+                )
+                return
+
+            identificacion_usuario = (
+                usuario_seleccionado.split(" - ")[0]
+            )
+
+            codigo_producto = (
+                producto_seleccionado.split(" - ")[0]
+            )
+
+            exito, mensaje = self.servicio.registrar_venta(
+                identificacion_usuario,
+                codigo_producto
+            )
+
+            if exito:
+                messagebox.showinfo(
+                    "Venta",
+                    mensaje
+                )
+
+                self.actualizar_informacion()
+                self.mostrar_ventas()
+
+            else:
+                messagebox.showerror(
+                    "Venta",
+                    mensaje
+                )
+
+        # -------------------------
+        # BOTON
+        # -------------------------
+        tk.Button(
+            self.contenido,
+            text="Registrar venta",
+            width=20,
+            command=registrar_venta
+        ).pack(pady=10)
+
+        # -------------------------
+        # TABLA DE VENTAS
+        # -------------------------
+        tabla = ttk.Treeview(
+            self.contenido,
+            columns=("usuario", "producto", "fecha"),
+            show="headings",
+            height=6
+        )
+
+        tabla.heading(
+            "usuario",
+            text="Usuario"
+        )
+
+        tabla.heading(
+            "producto",
+            text="Producto"
+        )
+
+        tabla.heading(
+            "fecha",
+            text="Fecha"
+        )
+
+        tabla.column(
+            "usuario",
+            width=130
+        )
+
+        tabla.column(
+            "producto",
+            width=130
+        )
+
+        tabla.column(
+            "fecha",
+            width=180
+        )
+
+        tabla.pack(
+            fill="x",
+            pady=5
+        )
+
+        for venta in self.servicio.listar_ventas():
+            tabla.insert(
+                "",
+                "end",
+                values=(
+                    venta.usuario,
+                    venta.producto,
+                    venta.fecha
+                )
+            )

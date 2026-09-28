@@ -1,42 +1,79 @@
-# Restaurante App
+# Restaurante App - Semana 15
 
-**Nombre:** Josue Batallas
-**Materia:** Programación Orientada a Objetos
-**Semana:** 14
+## Programación Orientada a Objetos
 
-## Inicio de sesión
+**Nombre:** Josue Batallas  
+**Actividad:** Semana 15  
+**Proyecto:** restaurante_app
 
-En esta semana también se corrigió el problema que se había presentado anteriormente con el inicio de sesión.
+---
 
-Ahora el programa permite ingresar correctamente utilizando un usuario y una contraseña que estén registrados en el archivo `usuarios.json`.
+## 1. Descripción del proyecto
 
-Para realizar una prueba de ingreso se puede utilizar:
+Este proyecto corresponde a la continuación del proyecto `restaurante_app` que se ha venido trabajando durante las semanas anteriores de la materia de Programación Orientada a Objetos.
 
-* **Usuario:** `Josue`
-* **Contraseña:** `1234`
+En esta semana se continuó trabajando sobre la misma estructura del proyecto, sin empezar desde cero. Se mantuvieron las funciones que ya estaban realizadas y se agregó una nueva sección para poder registrar y visualizar las ventas realizadas.
 
-Después de ingresar correctamente, se muestra el panel principal de la aplicación.
+El proyecto está desarrollado en Python utilizando una estructura modular, separando los modelos, servicios, datos y la interfaz gráfica.
 
-## Sobre el proyecto
+La aplicación permite iniciar sesión, administrar productos y usuarios, y ahora también registrar ventas desde la interfaz gráfica.
 
-Este proyecto es la continuación de la aplicación de restaurante que se ha ido realizando durante las semanas anteriores.
+---
 
-En esta semana continué trabajando con la interfaz gráfica utilizando Tkinter. También agregué nuevas funciones para poder administrar los productos desde la misma aplicación.
+## 2. Objetivo de la Semana 15
 
-La idea fue mantener la estructura que ya tenía el proyecto y agregar las nuevas funciones sin tener que hacerlo nuevamente desde cero.
+El objetivo principal de esta semana fue agregar el manejo de ventas al proyecto que ya se tenía realizado.
 
-## Estructura del proyecto
+Para esto se implementó:
+
+- Un nuevo modelo llamado `Venta`.
+- Un archivo `ventas.json` para guardar las ventas.
+- Una nueva sección de ventas en la interfaz.
+- Selección de usuarios y productos existentes.
+- Registro de una venta mediante un botón.
+- Uso de `command=` y funciones callback para los botones.
+- Comunicación entre la interfaz y `RestauranteServicio`.
+- Guardado de las ventas en un archivo JSON.
+- Visualización de las ventas registradas mediante una tabla.
+- Uso de imágenes y logotipo dentro de la interfaz mediante la carpeta `assets`.
+
+---
+
+## 3. Evolución del proyecto
+
+El proyecto se fue desarrollando por etapas. En las semanas anteriores ya se había creado la estructura principal de la aplicación, el inicio de sesión, la administración de productos y la administración de usuarios.
+
+Para esta semana se mantuvo esa estructura y se agregó el módulo de ventas.
+
+De esta manera, no se tuvo que crear nuevamente todo el proyecto, sino que se continuó trabajando sobre lo que ya estaba realizado.
+
+La nueva funcionalidad se integró a las partes que ya existían para mantener el proyecto organizado y evitar mezclar las responsabilidades de cada archivo.
+
+---
+
+## 4. Estructura del proyecto
+
+La estructura principal del proyecto quedó organizada de la siguiente manera:
 
 ```text
 restaurante_app/
+│
+├── assets/
+│   ├── logo.png
+│   ├── productos.png
+│   ├── usuarios.png
+│   └── ventas.png
+│
 ├── datos/
 │   ├── productos.json
-│   └── usuarios.json
+│   ├── usuarios.json
+│   └── ventas.json
 │
 ├── modelos/
 │   ├── __init__.py
 │   ├── producto.py
-│   └── usuario.py
+│   ├── usuario.py
+│   └── venta.py
 │
 ├── servicios/
 │   ├── __init__.py
@@ -50,62 +87,3 @@ restaurante_app/
 │
 ├── main.py
 └── README.md
-```
-
-## Interfaz gráfica
-
-Para esta actividad seguí utilizando Tkinter para la parte visual del programa.
-
-La ventana principal tiene diferentes botones para acceder a las funciones de la aplicación. También se organizaron mejor los elementos utilizando marcos y diferentes componentes de Tkinter.
-
-En la sección de productos se agregó un formulario donde se pueden ingresar los datos de cada producto.
-
-También se utiliza una tabla para poder visualizar los productos registrados de una manera más ordenada.
-
-## Administración de productos
-
-Una de las partes principales de esta semana fue agregar las operaciones básicas para administrar los productos.
-
-Ahora se puede:
-
-* Registrar un producto.
-* Consultar un producto por su código.
-* Actualizar los datos de un producto.
-* Eliminar un producto.
-* Ver los productos registrados en una tabla.
-* Limpiar los campos del formulario.
-
-Después de realizar una operación, la tabla se actualiza para mostrar la información actualizada.
-
-## Guardado de los productos
-
-Los productos se guardan en:
-
-```text
-datos/productos.json
-```
-
-Anteriormente el programa podía leer la información del archivo, pero para esta actividad también agregué la opción de guardar los cambios.
-
-De esta manera, cuando registro, actualizo o elimino un producto, los cambios se guardan en el archivo JSON.
-
-También comprobé que al cerrar el programa y volverlo a abrir, los cambios realizados permanecen guardados.
-
-## Usuarios
-
-Los usuarios se encuentran registrados en:
-
-```text
-datos/usuarios.json
-```
-
-La aplicación utiliza estos datos para comprobar el usuario y la contraseña durante el inicio de sesión.
-
-También se mantiene la opción de consultar los usuarios desde el panel principal.
-
-## Servicios
-
-Las operaciones de los productos se realizan desde `RestauranteServicio`.
-
-Esto permite que la interfaz se encargue principalmente de mostrar los datos y recibir la información del usuario, mientras que el servicio se encarga d
-
